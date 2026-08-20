@@ -9,7 +9,6 @@ from OrganizerLogic import Move
 
 app = Flask(__name__)
 
-
 def pick_folder():
     root = tk.Tk()
     root.withdraw()
