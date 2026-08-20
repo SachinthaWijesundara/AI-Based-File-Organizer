@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import filedialog
 from flask import Flask, render_template, jsonify
 import webbrowser
+from groq import APIError
 
 from OrganizerLogic import Scanner
 from OrganizerLogic import Move
@@ -45,10 +46,16 @@ def organize_ai():
         return jsonify({"status": "cancelled"})
 
     files = Scanner.scan_folder(source)
-    for item in files:
-        Category = AiClassifier.classify_file(item)
-        Move.move_file_ai(item, source, Category)
-    return jsonify({"status": "done", "count": len(files), "folder": source.name})
+    sorted_count = 0
+    try:
+        for item in files:
+            Category = AiClassifier.classify_file(item)
+            Move.move_file_ai(item, source, Category)
+            sorted_count += 1
+    except APIError:
+        return jsonify({"status": "ai_unavailable", "count": sorted_count, "folder": source.name})
+
+    return jsonify({"status": "done", "count": sorted_count, "folder": source.name})
 
 
 @app.route("/organize/both", methods=["POST"])
@@ -58,11 +65,17 @@ def organize_both():
         return jsonify({"status": "cancelled"})
     
     files = Scanner.scan_folder(source)
-    for item in files:
-        Extention = ExtentionMapper.findCategory(item)
-        Category = AiClassifier.classify_file(item)
-        Move.move_file_both(item, source, Extention, Category)
-    return jsonify({"status": "done", "count": len(files), "folder": source.name})
+    sorted_count = 0
+    try:
+        for item in files:
+            Extention = ExtentionMapper.findCategory(item)
+            Category = AiClassifier.classify_file(item)
+            Move.move_file_both(item, source, Extention, Category)
+            sorted_count += 1
+    except APIError:
+        return jsonify({"status": "ai_unavailable", "count": sorted_count, "folder": source.name})
+
+    return jsonify({"status": "done", "count": sorted_count, "folder": source.name})
 
 
 if __name__ == "__main__":

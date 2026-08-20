@@ -23,6 +23,13 @@ async function run(mode, card) {
       show(`Organized ${data.count} ${label} in ${data.folder}`, false, true);
     } else if (data.status === 'cancelled') {
       show('No folder selected', false, false);
+    } else if (data.status === 'ai_unavailable') {
+      if (data.count === 0) {
+        show('No internet connection, could not reach the AI service', false, false);
+      } else {
+        const label = data.count === 1 ? 'file' : 'files';
+        show(`Connection dropped after sorting ${data.count} ${label}. The rest were left untouched.`, false, false);
+      }
     } else {
       show('That mode is not available yet', false, false);
     }
