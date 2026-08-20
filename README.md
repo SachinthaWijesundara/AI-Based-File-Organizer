@@ -34,6 +34,7 @@ Nothing leaves your machine except the filenames themselves, and only when you u
 ```
 AI based File Organizer/
 ├── main.py                        # Flask server + routes, the entry point
+├── run.bat                         # double-click to install deps and launch the app
 ├── requirements.txt                # Python dependencies
 ├── .env                            # your real Groq API key (never committed)
 ├── .env.example                    # template showing what .env should contain
@@ -52,6 +53,8 @@ AI based File Organizer/
 ## Setup
 
 Requires Python 3.10 or newer.
+
+> **Shortcut:** if you just want to skip straight to running the app, `run.bat` (double-click it) does steps 1–3 below automatically. The manual steps are here in case you want to understand or control each step yourself.
 
 ```bash
 # 1. Create a virtual environment (first time only)
@@ -78,13 +81,26 @@ GROQ_API_KEY=your_real_key_here
 
 ## Running It
 
+**Easiest way — double-click `run.bat`.** It installs any missing dependencies and starts the app in one step, no terminal required. A console window will pop up and stay open while the app runs — that's normal, leave it be.
+
+**Manual way**, if you'd rather run it yourself:
+
 ```bash
 .venv\Scripts\python.exe main.py
 ```
 
-This opens your default browser to `http://127.0.0.1:5000` automatically. Leave the terminal window open — closing it, or pressing `Ctrl+C`, shuts the server down and the page stops working.
+Either way, your default browser opens automatically to `http://127.0.0.1:5000`. Click a mode, pick a folder in the dialog that pops up, and wait for the result.
 
-Click a mode, pick a folder in the dialog that pops up, and wait for the result.
+### Stopping the server
+
+**Closing the browser tab does *not* stop the server.** The web page and the Python server behind it are two separate things — the server keeps running in the background even after the tab is closed, until you stop it directly.
+
+To actually stop it, either:
+
+- Press `Ctrl+C` in the console/terminal window, **or**
+- Just close that console/terminal window entirely (clicking the X works fine — it shuts down the server along with it)
+
+If the console window gets lost, minimized, or closed without noticing, look for `python.exe` in Task Manager and end it there as a last resort.
 
 ## Getting a Groq API Key
 
