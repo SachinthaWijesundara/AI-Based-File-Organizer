@@ -30,7 +30,7 @@ async function run(mode, card) {
     show('Could not reach the organizer', false, false);
   }
 
-  cards.forEach(c => c.disabled = c.dataset.mode !== 'extension' && c.dataset.mode !== 'ai');
+  cards.forEach(c => c.disabled = c.dataset.mode !== 'extension' && c.dataset.mode !== 'ai' && c.dataset.mode !== 'both');
 }
 
 cards.forEach(card => {

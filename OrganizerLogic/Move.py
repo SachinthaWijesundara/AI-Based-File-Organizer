@@ -14,3 +14,9 @@ def move_file_ai(file: Path, main_folder: Path, category: str):
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination = ex.resolveDuplicate(destination)
     shutil.move(str(file), str(destination))
+
+def move_file_both(file: Path, main_folder: Path, extension_category: str, ai_category: str):
+    destination = main_folder / "Organized" / extension_category / ai_category / file.name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination = ex.resolveDuplicate(destination)
+    shutil.move(str(file), str(destination))

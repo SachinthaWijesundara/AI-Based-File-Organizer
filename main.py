@@ -7,6 +7,7 @@ import webbrowser
 from OrganizerLogic import Scanner
 from OrganizerLogic import Move
 from OrganizerLogic import AiClassifier
+from OrganizerLogic import ExtentionMapper
 
 app = Flask(__name__)
 
@@ -52,7 +53,16 @@ def organize_ai():
 
 @app.route("/organize/both", methods=["POST"])
 def organize_both():
-    return jsonify({"status": "unavailable"})
+    source = pick_folder()
+    if source is None:
+        return jsonify({"status": "cancelled"})
+    
+    files = Scanner.scan_folder(source)
+    for item in files:
+        Extention = ExtentionMapper.findCategory(item)
+        Category = AiClassifier.classify_file(item)
+        Move.move_file_both(item, source, Extention, Category)
+    return jsonify({"status": "done", "count": len(files), "folder": source.name})
 
 
 if __name__ == "__main__":
