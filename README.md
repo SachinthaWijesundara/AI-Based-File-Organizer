@@ -11,6 +11,7 @@ A local desktop tool that organizes a messy folder for you. Point it at a folder
 - [Running It](#running-it)
 - [Getting a Groq API Key](#getting-a-groq-api-key)
 - [What It Actually Does to Your Files](#what-it-actually-does-to-your-files)
+- [Error Handling](#error-handling)
 - [Known Limitations](#known-limitations)
 - [Tech Stack](#tech-stack)
 
@@ -103,10 +104,19 @@ Groq's free tier is generous for personal use, but is still rate-limited — org
 - If two files would end up with the same name in the same destination, the second one is automatically renamed (`report.pdf` → `report (1).pdf`) instead of overwriting the first.
 - There is currently **no undo feature.** Test on a folder you don't mind experimenting with before running it on something important.
 
+## Error Handling
+
+AI sort and "Extension, then AI" both depend on reaching Groq's servers over the internet. That connection can fail — no internet, Groq's API being briefly unreachable, or hitting the free tier's rate limit — and this is handled gracefully rather than crashing:
+
+- **If it fails before sorting anything**, you'll see: *"No internet connection, could not reach the AI service."* Nothing is touched.
+- **If the connection drops partway through a batch**, you'll see: *"Connection dropped after sorting N files. The rest were left untouched."* Every file already sorted stays sorted; every file not yet reached is left exactly where it was — no half-moved files, no silent data loss.
+
+Extension sort never contacts the internet at all, so none of this applies to it — it either works instantly or it doesn't run.
+
 ## Known Limitations
 
 - **AI classification is not always accurate.** It's a language model guessing from a filename alone — a poorly named file (`IMG_4821.jpg`, `final_final_v2.docx`) gives it very little to work with, and it can misclassify. Extension sort is deterministic and always correct by definition; AI sort is a best-effort guess.
-- **AI modes require an internet connection.** Every file triggers a separate network call to Groq's servers — if you're offline, only Extension sort will work.
+- **AI modes require an internet connection** to work at all — see [Error Handling](#error-handling) above for what happens if that connection isn't available.
 - **AI modes are noticeably slower than Extension sort**, since each file is classified with its own separate API call, one after another, not in parallel.
 - **Filenames are sent to a third party (Groq)** when using an AI mode. Nothing else about the file — not its contents, not its location — is sent, but be aware the filename itself leaves your machine.
 - **The category list is fixed** (`University`, `Business`, `Personal`, `Entertainment`, `Finance`, `Other`) — the AI can't invent new categories, it can only pick from this list.
