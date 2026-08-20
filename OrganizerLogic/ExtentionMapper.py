@@ -10,7 +10,7 @@ EXTENSION_MAP = {
 }
 
 #Converts to all file extentions and their types
-extentionWithCategory = {ext:category for category, extention in EXTENSION_MAP.items() for ext in extention}\
+extentionWithCategory = {ext:category for category, extention in EXTENSION_MAP.items() for ext in extention}
 
 def findCategory(file: Path) -> str:
     return extentionWithCategory.get(file.suffix.lower(), "Other")
