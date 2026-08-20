@@ -15,5 +15,24 @@ extentionWithCategory = {ext:category for category, extention in EXTENSION_MAP.i
 def findCategory(file: Path) -> str:
     return extentionWithCategory.get(file.suffix.lower(), "Other")
 
+def get_destination(file: Path, main_folder: Path) -> Path:
+    category = findCategory(file)
+    return main_folder / "Organized" / category / file.name
+
+#Avoid Duplicates
+def resolveDuplicate (file: Path) -> Path:
+    if not file.exists():
+        return file
+
+    stemOfName = file.stem
+    suffixOfName = file.suffix
+    destFolder = file.parent
+    count = 1
+
+    while file.exists() :
+        file = destFolder / f"{stemOfName} ({count}){suffixOfName}"
+        count +=1
+
+    return file
 
 

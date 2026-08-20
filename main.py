@@ -3,15 +3,35 @@ import tkinter as tk
 from tkinter import filedialog
 from tkinter import messagebox
 
-#Using Tkinter to open a Folder Selection window
-root = tk.Tk()
-root.withdraw()
+from OrganizerLogic import Scanner
+from OrganizerLogic import Move
 
-source = filedialog.askdirectory(title="Select a Folder To ORganize")
 
-if not source:
-    messagebox.showerror("Error", "No file selected", parent=root)
-else:
-    source = Path(source)
+def main():
 
-root.destroy()
+    #Using Tkinter to open a Folder Selection window
+    root = tk.Tk()
+    root.withdraw()
+
+    source = filedialog.askdirectory(title="Select a Folder To ORganize")
+
+    if not source:
+        messagebox.showerror("Error", "No file selected", parent=root)
+        return
+    else:
+        source = Path(source)
+
+    root.destroy()
+
+    pathList = Scanner.scan_folder(source)
+
+    for item in pathList:
+        Move.move_file(item, source)
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
