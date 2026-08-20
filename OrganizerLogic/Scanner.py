@@ -9,6 +9,6 @@ def scan_folder(source: Path) -> list[Path]:
         if item.is_file():
             files.append(item)
         elif item.is_dir() and item.name in SKIP_FOLDERS:
-            continue 
+            continue
 
     return files
