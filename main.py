@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import filedialog
 from flask import Flask, render_template, jsonify
 import webbrowser
-from groq import APIError
+from groq import APIError, RateLimitError
 
 from OrganizerLogic import Scanner
 from OrganizerLogic import Move
@@ -26,6 +26,15 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/info")
+def info():
+    return jsonify({
+        "models": AiClassifier.MODELS,
+        "categories": AiClassifier.CATEGORIES,
+        "batch_size": AiClassifier.BATCH_SIZE,
+    })
+
+
 @app.route("/organize/extension", methods=["POST"])
 def organize_extension():
     source = pick_folder()
@@ -45,13 +54,18 @@ def organize_ai():
     if source is None:
         return jsonify({"status": "cancelled"})
 
+    AiClassifier.reset_models()
     files = Scanner.scan_folder(source)
     sorted_count = 0
     try:
-        for item in files:
-            Category = AiClassifier.classify_file(item)
-            Move.move_file_ai(item, source, Category)
-            sorted_count += 1
+        for i in range(0, len(files), AiClassifier.BATCH_SIZE):
+            batch = files[i:i + AiClassifier.BATCH_SIZE]
+            categories = AiClassifier.classify_batch(batch)
+            for item in batch:
+                Move.move_file_ai(item, source, categories[item.name])
+                sorted_count += 1
+    except RateLimitError:
+        return jsonify({"status": "ai_limit", "count": sorted_count, "folder": source.name})
     except APIError:
         return jsonify({"status": "ai_unavailable", "count": sorted_count, "folder": source.name})
 
@@ -64,14 +78,19 @@ def organize_both():
     if source is None:
         return jsonify({"status": "cancelled"})
     
+    AiClassifier.reset_models()
     files = Scanner.scan_folder(source)
     sorted_count = 0
     try:
-        for item in files:
-            Extention = ExtentionMapper.findCategory(item)
-            Category = AiClassifier.classify_file(item)
-            Move.move_file_both(item, source, Extention, Category)
-            sorted_count += 1
+        for i in range(0, len(files), AiClassifier.BATCH_SIZE):
+            batch = files[i:i + AiClassifier.BATCH_SIZE]
+            categories = AiClassifier.classify_batch(batch)
+            for item in batch:
+                extension_category = ExtentionMapper.findCategory(item)
+                Move.move_file_both(item, source, extension_category, categories[item.name])
+                sorted_count += 1
+    except RateLimitError:
+        return jsonify({"status": "ai_limit", "count": sorted_count, "folder": source.name})
     except APIError:
         return jsonify({"status": "ai_unavailable", "count": sorted_count, "folder": source.name})
 
